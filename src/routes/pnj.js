@@ -1,21 +1,21 @@
 const router = require('express').Router();
 const superagent = require('superagent');
-const logger = require('../utils/logging').getLogger('pnj');
+const logger = require('../utils/logging').getLogger('npc');
 const StringBuilder = require("string-builder");
 
-const baseurl = 'https://www.nostalgeek-serveur.com/db/?npc=';
+const baseurl = 'https://classicdb.ch/?npc='; //'https://www.nostalgeek-serveur.com/db/?npc=';
 
 
 router.post('/', async (req, res, next) => {
-  const pnjId = req.body.pnjId;
-  res.redirect('/pnj/' + pnjId);
+  const npcId = req.body.npcId;
+  res.redirect('/npc/' + npcId);
 });
 
-router.get('/:pnjId', async (req, res, next) => {
-  const pnjId = req.params.pnjId;
-  logger.info("requesting PNJ", pnjId);
+router.get('/:npcId', async (req, res, next) => {
+  const npcId = req.params.npcId;
+  logger.info("requesting NPC" + npcId);
 
-  const wowResult = await superagent.get(baseurl + pnjId);
+  const wowResult = await superagent.get(baseurl + npcId);
   if(wowResult.status != 200) {
     logger.error("Aborting", wowResult);
     return;
@@ -23,41 +23,57 @@ router.get('/:pnjId', async (req, res, next) => {
 
   const htmlText = wowResult.text;
 
-  let pnjStr = new StringBuilder("<html><body>");
-  const pnjName = getPnjName(htmlText);
-  pnjStr.append("<h1>" + pnjName + "</h1>");
+  let npcStr = new StringBuilder("<html><body>");
+  const npcName = getNpcName(htmlText);
+  npcStr.append("<h1>" + npcName + "</h1>");
 
-  header(pnjId, pnjStr);
+  // const npcModel = getNpcModel(htmlText);
+  // npcStr.append("<img src = '" + npcModel + "' />");
+
+  header(npcId, npcStr);
 
 
   const ids = getIdsToDelete(htmlText);
   ids.forEach(id => {
-    pnjStr.append(".npc delitem " + id + "<br/>");
+    npcStr.append(".npc delitem " + id + "<br/>");
   });
 
-  footer(pnjId, pnjStr);
+  footer(npcId, npcStr);
 
-  res.end(pnjStr.toString());
+  res.end(npcStr.toString());
 });
 
-function header(pnjId, pnjStr) {
-  // pnjStr.append("<html><body>");
-  pnjStr.append(".npc add " + pnjId + "<br/>");
-  pnjStr.append("-----------------------<br/>");
+function header(npcId, npcStr) {
+  // npcStr.append("<html><body>");
+  npcStr.append(".npc add " + npcId + "<br/>");
+  npcStr.append("-----------------------<br/>");
 }
 
-function footer(pnjId, pnjStr) {
-  pnjStr.append('<br/><form action = "./" method = "post">Seek for a new NPC <input type="text" name = "pnjId" value = "' + pnjId + '" size = "5" /><input type = "submit" value = "GO" /></form>');
-  pnjStr.append('</body></html>');
+function footer(npcId, npcStr) {
+  npcStr.append('<br/><form action = "./" method = "post">Seek for a new NPC <input type="text" name = "npcId" value = "' + npcId + '" size = "5" /><input type = "submit" value = "GO" /></form>');
+  npcStr.append('</body></html>');
 }
 
-function getPnjName(htmlText) {
-  const regex = new RegExp("<h1>.*</h1>", "i");
+function getNpcName(htmlText) {
+  const regex = new RegExp("<h1>(.*)</h1>", "i");
   let match = regex.exec(htmlText);
-  while (match != null) {
-    const pnjName = match[0].replace("<h1>", "").replace("</h1>", "");
-    return pnjName;
+  if(match == null || match.length < 2) {
+    console.error("Unable to fetch NPC name");
+    return;
   }
+
+  return match[1];
+}
+
+function getNpcModel(htmlText) {
+  const regex = new RegExp("modelviewer img=(.*) npc", "i");
+  let match = regex.exec(htmlText);
+  if(match == null || match.length < 2) {
+    console.error("Unable to fetch NPC model");
+    return;
+  }
+
+  return match[1];
 }
 
 function getIdsToDelete(htmlText) {
@@ -73,10 +89,10 @@ function getIdsToDelete(htmlText) {
     if(template.indexOf("{template:'item',id:'sells'") < 0)
       continue;
     
-    const regex = new RegExp("id:[0-9]+", "gi"); // Ex: id:1234
+    const regex = new RegExp("id:([0-9]+)", "gi"); // Ex: id:1234
     let match = regex.exec(template);
     while (match != null) {
-      const id = match[0].replace("id:", "");
+      const id = match[1];
       match = regex.exec(template);
 
       ids.push(id);
