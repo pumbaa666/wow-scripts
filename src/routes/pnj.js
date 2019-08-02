@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const superagent = require('superagent');
+const logger = require('../utils/logging').getLogger('pnj');
 
 const baseurl = 'https://www.nostalgeek-serveur.com/db/?npc=';
 
@@ -11,12 +12,8 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:pnjId', async (req, res, next) => {
     const pnjId = req.params.pnjId;
-    console.log("PNJ", pnjId);
+    logger.info("requesting PNJ", pnjId);
 
-    console.log("");
-    console.log("------------------------------");
-    console.log(".npc add "+pnjId);
-    console.log("");
     const pnj = {id: pnjId, sellItems: []};
     let pnjStr = "<html><body>";
   
@@ -43,7 +40,6 @@ router.get('/:pnjId', async (req, res, next) => {
       let match = regex.exec(template);
       while (match != null) {
         const id = match[0].replace("id:", ""); // On vire les accolades
-        console.log(".npc delitem "+id);
         match = regex.exec(template);
 
         pnj.sellItems.push(id);
@@ -55,7 +51,6 @@ router.get('/:pnjId', async (req, res, next) => {
 
     pnjStr = pnjStr + '<form action = "./" method = "post"><input type="text" name = "pnjId" value = "'+pnjId+'" /><input type = "submit" value = "PNJ" /></form>'
     pnjStr =  pnjStr + '</body></html>';
-    console.log("------------------------------");
 
     // res.set('content-type', 'application/json');
     // res.json(pnj);
