@@ -1,12 +1,16 @@
 const router = require('express').Router();
-const path = require('path');
 const superagent = require('superagent');
 
 const baseurl = 'https://www.nostalgeek-serveur.com/db/?npc=';
 
 
+router.post('/', async (req, res, next) => {
+  const pnjId = req.body.pnjId;
+  res.redirect('/pnj/' + pnjId);
+});
+
 router.get('/:pnjId', async (req, res, next) => {
-    const pnjId = req.params.pnjId; // TODO middleware param
+    const pnjId = req.params.pnjId;
     console.log("PNJ", pnjId);
 
     console.log("");
@@ -21,6 +25,8 @@ router.get('/:pnjId', async (req, res, next) => {
       logger.error("Aborting", wowResult);
       return;
     }
+    pnjStr = pnjStr + ".npc add " + pnjId + "<br/>";
+    pnjStr = pnjStr + "-----------------------<br/>";
   
     const htmlText = wowResult.text;
     const templates = htmlText.split("new Listview");
@@ -36,7 +42,7 @@ router.get('/:pnjId', async (req, res, next) => {
       const regex = /id:[0-9]+/g; // Ex: id:1234
       let match = regex.exec(template);
       while (match != null) {
-        const id = match[0].replace("id:", ""); // On vire les accollades
+        const id = match[0].replace("id:", ""); // On vire les accolades
         console.log(".npc delitem "+id);
         match = regex.exec(template);
 
@@ -47,7 +53,7 @@ router.get('/:pnjId', async (req, res, next) => {
       break; // On a trouvé le tableau 'Sells' on peut quitter
     };
 
-    pnjStr = pnjStr + '<form action = "./666"><input type="text" value = "'+pnjId+'" /><input type = "submit" value = "PNJ" /></form>'
+    pnjStr = pnjStr + '<form action = "./" method = "post"><input type="text" name = "pnjId" value = "'+pnjId+'" /><input type = "submit" value = "PNJ" /></form>'
     pnjStr =  pnjStr + '</body></html>';
     console.log("------------------------------");
 

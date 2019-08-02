@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node_modules/.bin/babel-node dist/server.js --config dev-config.json",
     "release": "node_modules/.bin/babel src/ -d dist/",
-    "test": "node_modules/.bin/mocha --require babel-core/register --recursive test/"
+    "watch": "node_modules/.bin/babel --watch=./src --out-dir=dist --copy-files"
   },
   "dependencies": {
     "express": "^4.17.1",
