@@ -13,7 +13,7 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:npcId', async (req, res, next) => {
   const npcId = req.params.npcId;
-  logger.info("requesting NPC" + npcId);
+  logger.info("requesting NPC " + npcId);
 
   const wowResult = await superagent.get(baseurl + npcId);
   if(wowResult.status != 200) {
@@ -27,8 +27,8 @@ router.get('/:npcId', async (req, res, next) => {
   const npcName = getNpcName(htmlText);
   npcStr.append("<h1>" + npcName + "</h1>");
 
-  // const npcModel = getNpcModel(htmlText);
-  // npcStr.append("<img src = '" + npcModel + "' />");
+  const npcModel = getNpcModel(htmlText);
+  npcStr.append("<img src = '" + npcModel + "' /><br/></br>");
 
   header(npcId, npcStr);
 
@@ -66,7 +66,7 @@ function getNpcName(htmlText) {
 }
 
 function getNpcModel(htmlText) {
-  const regex = new RegExp("modelviewer img=(.*) npc", "i");
+  const regex = new RegExp("modelviewer img=(.*\.png)", "i");
   let match = regex.exec(htmlText);
   if(match == null || match.length < 2) {
     console.error("Unable to fetch NPC model");
