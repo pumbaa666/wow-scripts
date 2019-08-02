@@ -13,7 +13,7 @@ const app: express$Application = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 
-app.use('/pnj/', routes.conf);
+app.use('/npc/', routes.conf);
 
 app.use(middlewares.errors);
 

@@ -1,5 +1,5 @@
 // @flow
 
 module.exports = {
-  conf: require('./pnj'),
+  conf: require('./npc'),
 };
