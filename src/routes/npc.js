@@ -3,7 +3,7 @@ const superagent = require('superagent');
 const logger = require('../utils/logging').getLogger('npc');
 const StringBuilder = require("string-builder");
 
-const baseurl = 'https://classicdb.com/?npc='; //'https://www.nostalgeek-serveur.com/db/?npc=';
+const baseurl = 'https://classicdb.ch/?npc='; //'https://www.nostalgeek-serveur.com/db/?npc=';
 
 
 router.post('/', async (req, res, next) => {
